@@ -34,7 +34,7 @@ public class MainActivity extends Activity
 
 	public void widget_init()
 	{
-		button = (Button) findViewById(R.id.start);
+		button = (Button) findViewById(R.id.start);         //initial all the widgets
 	}
 
 	public void setListener()
@@ -42,7 +42,7 @@ public class MainActivity extends Activity
 		button.setOnClickListener(new OnClickListener()
 		{
 			@Override
-			public void onClick(View v)
+			public void onClick(View v)                    //Listen to the start button
 			{
 				Thread renaming = new Thread(new Runnable()
 				{
@@ -70,7 +70,7 @@ public class MainActivity extends Activity
 		});
 	}
 
-	public void rename()
+	public void rename()                                //start to rename
 	{
 		path = "/sdcard/UCDownloads/cache/htt/";
 		file = new File(path);
@@ -106,7 +106,7 @@ public class MainActivity extends Activity
 		widget_init();
 		setListener();
 
-		handler = new Handler()
+		handler = new Handler()                               //receive messages from the thread
 		{
 			@Override
 			public void handleMessage(Message msg)
