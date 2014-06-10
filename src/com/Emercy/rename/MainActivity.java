@@ -1,22 +1,18 @@
 package com.Emercy.rename;
 
 import java.io.File;
-import java.text.ParseException;
 
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 public class MainActivity extends Activity
@@ -31,46 +27,41 @@ public class MainActivity extends Activity
 	LinearLayout rename_layout;
 	Boolean renameFlag = false;
 	Handler handler;
+	AlertDialog dialog;
 
-	public void widget_init()
+	public void widget_init()                                         //initial all the widgets
 	{
-		button = (Button) findViewById(R.id.start);         //initial all the widgets
+		button = (Button) findViewById(R.id.start);
 	}
 
-	public void setListener()
+	public void setListener()                                         //set all Listeners
 	{
 		button.setOnClickListener(new OnClickListener()
 		{
 			@Override
-			public void onClick(View v)                    //Listen to the start button
+			public void onClick(View v)
 			{
+				inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+				rename_layout = (LinearLayout) inflater
+						.inflate(R.layout.renaming, null);
 				Thread renaming = new Thread(new Runnable()
 				{
 					@Override
 					public void run()
 					{
-						//						new Handler().postDelayed(new Runnable()
-						//						{
-						//							@Override
-						//							public void run()
-						//							{
-						rename();
-						renameFlag = true;
-						//							}
-						//						}, 3000);
+						Message msg = Message.obtain();
+						msg.arg1 = rename();
+						handler.sendMessage(msg);
 					}
 				});
 				renaming.start();
-				AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
+				dialog = new AlertDialog.Builder(MainActivity.this)
 						.setView(rename_layout).show();
-				while (!renameFlag)
-					;
-				dialog.dismiss();
 			}
 		});
 	}
 
-	public void rename()                                //start to rename
+	public int rename()
 	{
 		path = "/sdcard/UCDownloads/cache/htt/";
 		file = new File(path);
@@ -86,12 +77,11 @@ public class MainActivity extends Activity
 					s[i].renameTo(new File(path + name + ".jpg"));
 				}
 			}
-
-			//			Toast.makeText(this, "修改成功", Toast.LENGTH_SHORT).show();
+			return 1;
 		}
 		else
 		{
-			//			Toast.makeText(this, "未查找到目录", Toast.LENGTH_SHORT).show();
+			return 0;
 		}
 	}
 
@@ -100,18 +90,33 @@ public class MainActivity extends Activity
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		inflater = (LayoutInflater) getSystemService(this.LAYOUT_INFLATER_SERVICE);
-		rename_layout = (LinearLayout) inflater
-				.inflate(R.layout.renaming, null);
+		
 		widget_init();
 		setListener();
 
-		handler = new Handler()                               //receive messages from the thread
+		handler = new Handler()
 		{
 			@Override
 			public void handleMessage(Message msg)
 			{
+				new Handler().postDelayed(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						dialog.dismiss();
+					}
+				}, 1000);
 				super.handleMessage(msg);
+				if(msg.arg1 == 1)
+				{
+					Toast.makeText(MainActivity.this, "转换完毕", Toast.LENGTH_SHORT).show();
+					
+				}
+				else
+				{
+					Toast.makeText(MainActivity.this, "转换失败，没有发现目标文件", Toast.LENGTH_SHORT).show();
+				}
 			}
 		};
 
